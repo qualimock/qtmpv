@@ -79,10 +79,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
-void MainWindow::paintEvent(QPaintEvent *event) {
-    painter->setPen(QPen(Qt::black, 10, Qt::SolidLine));
-    painter->drawLine(0, this->size().height()/2, this->size().width(), this->size().height()/2);
-}
 
 void MainWindow::handle_mpv_event(mpv_event *event)
 {
