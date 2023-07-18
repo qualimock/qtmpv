@@ -8,6 +8,7 @@
 
 class QTextEdit;
 class OverlayLine;
+class OverlayText;
 
 
 class MainWindow : public QMainWindow
@@ -31,6 +32,7 @@ signals:
 private:
     QWidget *mpv_container;
     OverlayLine *overlayLine;
+    OverlayText *overlayText;
     QTextEdit *log;
     mpv_handle *mpv;
 

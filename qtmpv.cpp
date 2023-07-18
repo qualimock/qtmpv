@@ -13,11 +13,11 @@
 #include <QJsonDocument>
 #endif
 
-#include "qthelper.hpp"
-
 #include "qtmpv.h"
 
+#include "qthelper.hpp"
 #include "overlayline.h"
+#include "overlaytext.h"
 
 static void wakeup(void *ctx)
 {
@@ -81,6 +81,12 @@ MainWindow::MainWindow(QWidget *parent)
     overlayLine = new OverlayLine(mpv_container);
     overlayLine->setColor(Qt::red);
     overlayLine->setThickness(3);
+
+    overlayText = new OverlayText(mpv_container);
+    overlayText->setText("Hello, World!!!");
+    overlayText->setFont(QFont());
+    overlayText->setFontSize(100);
+    overlayText->setFontColor(Qt::gray);
 }
 
 
@@ -89,12 +95,14 @@ bool MainWindow::event(QEvent *event)
     switch (event->type()) {
     case QEvent::Show:
         overlayLine->show();
+        overlayText->show();
         break;
 
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
         overlayLine->widgetSizeMove(mpv_container);
+        overlayText->widgetSizeMove(mpv_container);
         break;
     default:
         break;
@@ -202,4 +210,7 @@ void MainWindow::resizeEvent(QResizeEvent *)
 {
     overlayLine->setOriginOffset(0, this->height()/2);
     overlayLine->resize(this->width(), overlayLine->height());
+
+    overlayText->setOriginOffset(0, 0);
+    overlayText->resize(100, 100);
 }

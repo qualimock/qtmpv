@@ -11,8 +11,10 @@ PKGCONFIG += mpv
 
 SOURCES += qtmpv.cpp \
     main.cpp \
+    overlaytext.cpp \
     overlayline.cpp \
     overlaywidget.cpp
 HEADERS += qtmpv.h \
+    overlaytext.h \
     overlayline.h \
     overlaywidget.h
