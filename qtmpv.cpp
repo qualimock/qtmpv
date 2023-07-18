@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QTextEdit>
 #include <QLabel>
+#include <QTimer>
 
 #if QT_VERSION >= 0x050000
 #include <QJsonDocument>
@@ -17,6 +18,8 @@
 #include "qthelper.hpp"
 
 #include "qtmpv.h"
+
+#include "overlaywidget.h"
 
 static void wakeup(void *ctx)
 {
@@ -77,11 +80,49 @@ MainWindow::MainWindow(QWidget *parent)
 
     open_video_file("/dev/video0");
 
+    overlay = new OverlayWidget(this);
 }
 
 
-void MainWindow::handle_mpv_event(mpv_event *event)
+void MainWindow::widgetSizeMove()
 {
+    if (overlay->width() <= mpv_container->width() && overlay->height() <= mpv_container->height())
+    {
+        overlay->setWindowOpacity(1);
+        QPoint p = mpv_container->mapToGlobal(mpv_container->pos());
+        int x = p.x() + (mpv_container->width() - overlay->width()) / 2;
+        int y = p.y() + (mpv_container->height() - overlay->height()) / 2;
+        overlay->move(x, y);
+        overlay->raise();
+    }
+    else
+    {
+        overlay->setWindowOpacity(0); // Hide the overlay
+    }
+}
+
+bool MainWindow::event(QEvent *event) {
+    switch (event->type()) {
+    case QEvent::Show:
+        overlay->show();
+        QTimer::singleShot(50, this, SLOT(widgetSizeMove()));
+        //Wait until the Main Window be shown
+        break;
+
+    case QEvent::WindowActivate:
+    case QEvent::Resize:
+    case QEvent::Move:
+        widgetSizeMove();
+        break;
+    default:
+        break;
+    }
+
+    return QMainWindow::event(event);
+}
+
+
+void MainWindow::handle_mpv_event(mpv_event *event) {
     switch (event->event_id) {
     case MPV_EVENT_PROPERTY_CHANGE: {
         mpv_event_property *prop = (mpv_event_property *)event->data;

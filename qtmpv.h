@@ -7,6 +7,7 @@
 
 
 class QTextEdit;
+class OverlayWidget;
 
 
 class MainWindow : public QMainWindow
@@ -21,6 +22,8 @@ public:
 
 private slots:
     void on_mpv_events();
+    void widgetSizeMove();
+
 
 signals:
     void mpv_events();
@@ -28,12 +31,16 @@ signals:
 
 private:
     QWidget *mpv_container;
+    OverlayWidget *overlay;
     QTextEdit *log;
     mpv_handle *mpv;
 
     void append_log(const QString &text);
     void handle_mpv_event(mpv_event *event);
     void open_video_file(const QString &filename);
+
+protected:
+    bool event(QEvent *event);
 };
 
 #endif // QTEXAMPLE_H
