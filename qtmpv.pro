@@ -9,5 +9,7 @@ QT_CONFIG -= no-pkg-config
 CONFIG += link_pkgconfig debug
 PKGCONFIG += mpv
 
-SOURCES += qtmpv.cpp
-HEADERS += qtmpv.h
+SOURCES += qtmpv.cpp \
+    overlaywidget.cpp
+HEADERS += qtmpv.h \
+    overlaywidget.h
