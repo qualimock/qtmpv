@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (mpv_initialize(mpv) < 0)
         throw std::runtime_error("mpv failed to initialize");
 
+    open_video_file("/dev/video0");
 
 }
 
@@ -150,9 +151,9 @@ void MainWindow::on_mpv_events()
     }
 }
 
-void MainWindow::on_file_open()
+
+void MainWindow::open_video_file(const QString &filename)
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open file");
     if (mpv) {
         const QByteArray c_filename = filename.toUtf8();
         const char *args[] = {"loadfile", c_filename.data(), NULL};

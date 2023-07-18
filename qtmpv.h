@@ -20,7 +20,6 @@ public:
 
 
 private slots:
-    void on_file_open();
     void on_mpv_events();
 
 signals:
@@ -34,6 +33,7 @@ private:
 
     void append_log(const QString &text);
     void handle_mpv_event(mpv_event *event);
+    void open_video_file(const QString &filename);
 };
 
 #endif // QTEXAMPLE_H
