@@ -10,6 +10,7 @@ CONFIG += link_pkgconfig debug
 PKGCONFIG += mpv
 
 SOURCES += qtmpv.cpp \
+    main.cpp \
     overlaywidget.cpp
 HEADERS += qtmpv.h \
     overlaywidget.h

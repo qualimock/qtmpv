@@ -5,8 +5,8 @@
 #include <stdexcept>
 
 #include <QtGlobal>
+#include <QEvent>
 #include <QStatusBar>
-#include <QApplication>
 #include <QTextEdit>
 #include <QLabel>
 #include <QTimer>
@@ -212,16 +212,4 @@ MainWindow::~MainWindow()
 {
     if (mpv)
         mpv_terminate_destroy(mpv);
-}
-
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-
-    std::setlocale(LC_NUMERIC, "C");
-
-    MainWindow w;
-    w.show();
-
-    return a.exec();
 }
