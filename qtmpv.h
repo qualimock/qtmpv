@@ -7,7 +7,7 @@
 
 
 class QTextEdit;
-class OverlayWidget;
+class OverlayLine;
 
 
 class MainWindow : public QMainWindow
@@ -30,7 +30,7 @@ signals:
 
 private:
     QWidget *mpv_container;
-    OverlayWidget *overlay;
+    OverlayLine *overlayLine;
     QTextEdit *log;
     mpv_handle *mpv;
 
@@ -40,6 +40,7 @@ private:
 
 protected:
     bool event(QEvent *event);
+    void resizeEvent(QResizeEvent *event);
 };
 
 #endif // QTEXAMPLE_H

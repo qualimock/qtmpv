@@ -17,7 +17,7 @@
 
 #include "qtmpv.h"
 
-#include "overlaywidget.h"
+#include "overlayline.h"
 
 static void wakeup(void *ctx)
 {
@@ -78,21 +78,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     open_video_file("/dev/video0");
 
-    overlay = new OverlayWidget(this);
-    overlay->resize(this->width(), overlay->height());
+    overlayLine = new OverlayLine(mpv_container);
+    overlayLine->setColor(Qt::red);
+    overlayLine->setThickness(3);
 }
 
 
-bool MainWindow::event(QEvent *event) {
+bool MainWindow::event(QEvent *event)
+{
     switch (event->type()) {
     case QEvent::Show:
-        overlay->show();
+        overlayLine->show();
         break;
 
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        overlay->widgetSizeMove(mpv_container);
+        overlayLine->widgetSizeMove(mpv_container);
         break;
     default:
         break;
@@ -102,7 +104,8 @@ bool MainWindow::event(QEvent *event) {
 }
 
 
-void MainWindow::handle_mpv_event(mpv_event *event) {
+void MainWindow::handle_mpv_event(mpv_event *event)
+{
     switch (event->event_id) {
     case MPV_EVENT_PROPERTY_CHANGE: {
         mpv_event_property *prop = (mpv_event_property *)event->data;
@@ -192,4 +195,11 @@ MainWindow::~MainWindow()
 {
     if (mpv)
         mpv_terminate_destroy(mpv);
+}
+
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    overlayLine->setOriginOffset(0, this->height()/2);
+    overlayLine->resize(this->width(), overlayLine->height());
 }
