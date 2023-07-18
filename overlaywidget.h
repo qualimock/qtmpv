@@ -6,8 +6,12 @@
 class OverlayWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit OverlayWidget(QWidget *parent = nullptr);
+
+public slots:
+    void widgetSizeMove(QWidget *origin);
 
 protected:
     void paintEvent(QPaintEvent *event);

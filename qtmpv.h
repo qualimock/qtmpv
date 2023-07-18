@@ -22,7 +22,6 @@ public:
 
 private slots:
     void on_mpv_events();
-    void widgetSizeMove();
 
 
 signals:

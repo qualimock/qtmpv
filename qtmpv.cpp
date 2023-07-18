@@ -1,5 +1,3 @@
-// This example can be built with: qmake && make
-
 #include <clocale>
 #include <sstream>
 #include <stdexcept>
@@ -81,38 +79,20 @@ MainWindow::MainWindow(QWidget *parent)
     open_video_file("/dev/video0");
 
     overlay = new OverlayWidget(this);
+    overlay->resize(this->width(), overlay->height());
 }
 
-
-void MainWindow::widgetSizeMove()
-{
-    if (overlay->width() <= mpv_container->width() && overlay->height() <= mpv_container->height())
-    {
-        overlay->setWindowOpacity(1);
-        QPoint p = mpv_container->mapToGlobal(mpv_container->pos());
-        int x = p.x() + (mpv_container->width() - overlay->width()) / 2;
-        int y = p.y() + (mpv_container->height() - overlay->height()) / 2;
-        overlay->move(x, y);
-        overlay->raise();
-    }
-    else
-    {
-        overlay->setWindowOpacity(0); // Hide the overlay
-    }
-}
 
 bool MainWindow::event(QEvent *event) {
     switch (event->type()) {
     case QEvent::Show:
         overlay->show();
-        QTimer::singleShot(50, this, SLOT(widgetSizeMove()));
-        //Wait until the Main Window be shown
         break;
 
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        widgetSizeMove();
+        overlay->widgetSizeMove(mpv_container);
         break;
     default:
         break;
