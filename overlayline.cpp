@@ -4,19 +4,9 @@
 
 OverlayLine::OverlayLine(QWidget *parent)
     : OverlayWidget(parent)
+    , m_color(Qt::black)
+    , m_thickness(10)
 {}
-
-
-void OverlayLine::setThickness(unsigned thickness)
-{
-    m_thickness = thickness;
-}
-
-
-void OverlayLine::setColor(QColor color)
-{
-    m_color = color;
-}
 
 
 void OverlayLine::paintEvent(QPaintEvent *)

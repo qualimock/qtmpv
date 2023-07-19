@@ -9,9 +9,11 @@
 #include <QLabel>
 #include <QTimer>
 
+
 #if QT_VERSION >= 0x050000
 #include <QJsonDocument>
 #endif
+
 
 #include "qtmpv.h"
 
@@ -19,11 +21,13 @@
 #include "overlayline.h"
 #include "overlaytext.h"
 
+
 static void wakeup(void *ctx)
 {
     MainWindow *mainwindow = (MainWindow *)ctx;
     emit mainwindow->mpv_events();
 }
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -101,8 +105,8 @@ bool MainWindow::event(QEvent *event)
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        overlayLine->widgetSizeMove(mpv_container);
-        overlayText->widgetSizeMove(mpv_container);
+        overlayLine->widgetResizeMove(mpv_container);
+        overlayText->widgetResizeMove(mpv_container);
         break;
     default:
         break;
@@ -114,7 +118,8 @@ bool MainWindow::event(QEvent *event)
 
 void MainWindow::handle_mpv_event(mpv_event *event)
 {
-    switch (event->event_id) {
+    switch (event->event_id)
+    {
     case MPV_EVENT_PROPERTY_CHANGE: {
         mpv_event_property *prop = (mpv_event_property *)event->data;
         if (strcmp(prop->name, "time-pos") == 0) {
@@ -201,8 +206,9 @@ void MainWindow::append_log(const QString &text)
 
 MainWindow::~MainWindow()
 {
-    if (mpv)
+    if (mpv) {
         mpv_terminate_destroy(mpv);
+    }
 }
 
 

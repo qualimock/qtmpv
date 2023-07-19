@@ -1,32 +1,18 @@
 #include "overlaytext.h"
 
+
 #include <QPainter>
 #include <QString>
 #include <QFont>
 
+
 OverlayText::OverlayText(QWidget *parent)
     : OverlayWidget(parent)
+    , m_text("placeholder")
+    , m_font(QFont())
+    , m_fontColor(Qt::black)
 {}
 
-void OverlayText::setText(QString text)
-{
-    m_text = text;
-}
-
-void OverlayText::setFontColor(QColor color)
-{
-    m_fontColor = color;
-}
-
-void OverlayText::setFont(QFont font)
-{
-    m_font = font;
-}
-
-void OverlayText::setFontSize(unsigned size)
-{
-    m_font.setPixelSize(size);
-}
 
 void OverlayText::paintEvent(QPaintEvent *)
 {

@@ -1,8 +1,8 @@
 #ifndef QTEXAMPLE_H
 #define QTEXAMPLE_H
 
-#include <QMainWindow>
 
+#include <QMainWindow>
 #include <mpv/client.h>
 
 
@@ -16,20 +16,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-
-private slots:
-    void on_mpv_events();
-
-
-signals:
-    void mpv_events();
-
-
-private:
     QWidget *mpv_container;
     OverlayLine *overlayLine;
     OverlayText *overlayText;
@@ -40,9 +26,24 @@ private:
     void handle_mpv_event(mpv_event *event);
     void open_video_file(const QString &filename);
 
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+
 protected:
     bool event(QEvent *event);
     void resizeEvent(QResizeEvent *event);
+
+
+private slots:
+    void on_mpv_events();
+
+
+signals:
+    void mpv_events();
 };
+
 
 #endif // QTEXAMPLE_H

@@ -1,27 +1,34 @@
 #ifndef OVERLAYWIDGET_H
 #define OVERLAYWIDGET_H
 
+
 #include <QWidget>
-#include <QPoint>
+
+
+class QPoint;
+
 
 class OverlayWidget : public QWidget
 {
     Q_OBJECT
 
-    QPoint originOffset = QPoint(0, 0);
+    QPoint m_originOffset;
+
 
 public:
     explicit OverlayWidget(QWidget *parent = nullptr);
 
     void setOriginOffset(const QPoint &offset) {
-        originOffset = offset;
+        m_originOffset = offset;
     }
     void setOriginOffset(int x, int y) {
-        originOffset = QPoint(x, y);
+        m_originOffset = QPoint(x, y);
     }
 
+
 public slots:
-    void widgetSizeMove(QWidget *origin);
+    void widgetResizeMove(QWidget *origin);
 };
+
 
 #endif // OVERLAYWIDGET_H
