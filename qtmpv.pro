@@ -9,12 +9,12 @@ QT_CONFIG -= no-pkg-config
 CONFIG += link_pkgconfig debug
 PKGCONFIG += mpv
 
-SOURCES += qtmpv.cpp \
-    main.cpp \
-    overlaytext.cpp \
-    overlayline.cpp \
-    overlaywidget.cpp
-HEADERS += qtmpv.h \
-    overlaytext.h \
-    overlayline.h \
-    overlaywidget.h
+SOURCES += src/qtmpv.cpp \
+    src/main.cpp \
+    src/overlay/overlaytext.cpp \
+    src/overlay/overlayline.cpp \
+    src/overlay/overlaywidget.cpp
+HEADERS += src/qtmpv.h \
+    src/overlay/overlaytext.h \
+    src/overlay/overlayline.h \
+    src/overlay/overlaywidget.h

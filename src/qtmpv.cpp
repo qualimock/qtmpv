@@ -18,8 +18,8 @@
 #include "qtmpv.h"
 
 #include "qthelper.hpp"
-#include "overlayline.h"
-#include "overlaytext.h"
+#include "overlay/overlayline.h"
+#include "overlay/overlaytext.h"
 
 
 static void wakeup(void *ctx)
@@ -221,6 +221,5 @@ void MainWindow::resizeEvent(QResizeEvent *)
     overlayLine->setOriginOffset(0, this->height()/2);
     overlayLine->resize(this->width(), overlayLine->height());
 
-    overlayText->setOriginOffset(0, 0);
     overlayText->resize(100, 100);
 }

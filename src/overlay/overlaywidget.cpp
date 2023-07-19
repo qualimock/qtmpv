@@ -18,6 +18,19 @@ OverlayWidget::OverlayWidget(QWidget *parent)
 }
 
 
+OverlayWidget::OverlayWidget(const QPoint &originOffset, QWidget *parent)
+    : OverlayWidget(parent)
+{
+    m_originOffset = originOffset;
+}
+
+OverlayWidget::OverlayWidget(int offset_x, int offset_y, QWidget *parent)
+    : OverlayWidget(parent)
+{
+    m_originOffset = QPoint(offset_x, offset_y);
+}
+
+
 void OverlayWidget::widgetResizeMove(QWidget *origin)
 {
     if (this->width() <= origin->width() && this->height() <= origin->height()) {
