@@ -43,6 +43,20 @@ public:
     }
 
 
+    QString text() const {
+        return m_text;
+    }
+
+
+    QFont font() const {
+        return m_font;
+    }
+
+    unsigned fontSize() const {
+        return m_font.pixelSize();
+    }
+
+
 protected:
     void paintEvent(QPaintEvent *);
 };
