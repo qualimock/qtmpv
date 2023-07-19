@@ -18,6 +18,18 @@ OverlayWidget::OverlayWidget(QWidget *parent)
 }
 
 
+OverlayWidget::OverlayWidget(OverlayWidget&& wgt)
+    : m_originOffset(wgt.m_originOffset)
+{
+    wgt.destroy();
+}
+
+
+OverlayWidget::OverlayWidget(const OverlayWidget &wgt)
+    : m_originOffset(wgt.m_originOffset)
+{}
+
+
 OverlayWidget::OverlayWidget(const QPoint &originOffset, QWidget *parent)
     : OverlayWidget(parent)
 {
