@@ -7,6 +7,7 @@
 
 
 class QTextEdit;
+class OverlayWidget;
 class OverlayLine;
 class OverlayText;
 
@@ -17,10 +18,12 @@ class MainWindow : public QMainWindow
 
 
     QWidget *mpv_container;
-    OverlayLine *overlayLine;
-    OverlayText *overlayText;
     QTextEdit *log;
     mpv_handle *mpv;
+
+    QVector<OverlayWidget *> overlayWidgets;
+    OverlayLine *overlayLine;
+    OverlayText *overlayText;
 
     void append_log(const QString &text);
     void handle_mpv_event(mpv_event *event);

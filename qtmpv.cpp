@@ -82,15 +82,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     open_video_file("/dev/video0");
 
-    overlayLine = new OverlayLine(mpv_container);
+    overlayLine = new OverlayLine(this);
     overlayLine->setColor(Qt::red);
     overlayLine->setThickness(3);
 
-    overlayText = new OverlayText(mpv_container);
+    overlayText = new OverlayText(this);
     overlayText->setText("Hello, World!!!");
     overlayText->setFont(QFont());
     overlayText->setFontSize(100);
     overlayText->setFontColor(Qt::gray);
+
+    overlayWidgets.push_back(overlayLine);
+    overlayWidgets.push_back(overlayText);
 }
 
 
@@ -98,16 +101,19 @@ bool MainWindow::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Show:
-        overlayLine->show();
-        overlayText->show();
+        for (auto widget : overlayWidgets) {
+            widget->show();
+        }
         break;
 
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        overlayLine->widgetResizeMove(mpv_container);
-        overlayText->widgetResizeMove(mpv_container);
+        for (auto widget : overlayWidgets) {
+            widget->widgetResizeMove(mpv_container);
+        }
         break;
+
     default:
         break;
     }
