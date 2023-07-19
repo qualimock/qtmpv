@@ -33,9 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("Qt mpv");
-    setMinimumSize(800, 450);
-
-    statusBar();
+    setMinimumSize(800, 472);
 
 
     QMainWindow *log_window = new QMainWindow(this);
