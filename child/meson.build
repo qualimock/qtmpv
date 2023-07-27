@@ -1,2 +1,2 @@
-project('qtmpv', 'c')
-executable('qtmpv', 'main.c')
+project('qtmpv-child', 'c')
+executable('qtmpv-child', 'main.c')
