@@ -1,43 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/msg.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 
 #define TRUE 1
+#define MSGLEN 32
 #define KEY 1208
-#define BUFFER 64;
 
 
-typedef struct    
+typedef struct
 {
-	long long data;
-} Data;
+	long mType;
+	char mText[MSGLEN];
+} Msg;   
 
-	
+
 int main()
 {
-	int msqid;
-	key_t key = KEY;
-	size_t bufLen = BUFFER;
-    Data data;
+	Msg msg;
+	int msgid;
+	unsigned randNumber;
+
+	if ((msgid = msgget(KEY, 0666 | IPC_CREAT)) == -1)
+	{
+		perror("Error with message ID (msgget)!");
+		exit(1);
+	}
+
+	msg.mType = 1;
+
+	srand(time(NULL));
 	
 	while (TRUE)
 	{
-		data.data = rand(); 
-		if ((msqid = msgget(key, KEY)) < 0)
-		{
-			perror("Error with msgget");
-			exit(1);
-		}
+		char message[MSGLEN];
+		randNumber = rand() % 100;
 
-		if (msgsnd(msqid, &data, bufLen, IPC_NOWAIT) < 0)
-		{
-			perror("Error with msgsnd");
-			exit(0);
-		}
+		sprintf(message, "%u", randNumber);
+
+		msgsnd(msgid, &msg, sizeof(msg), 0);
+		
+	    usleep(1000);
 	}
-	printf("Hello World!\n");
-	
+    
 	exit(0);
 }
 
