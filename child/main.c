@@ -8,7 +8,6 @@
 
 #define TRUE 1
 #define MSGLEN 32
-#define KEY 1208
 
 
 typedef struct
@@ -22,28 +21,36 @@ int main()
 {
 	Msg msg;
 	int msgid;
+	int key = ftok("/home/puffy/dev/qtmpv/child/token.txt", 1);
 	unsigned randNumber;
 
-	if ((msgid = msgget(KEY, 0666 | IPC_CREAT)) == -1)
+	if (key == -1)
 	{
-		perror("Error with message ID (msgget)!");
+	  	perror("ftok");
+	   	exit(1);
+	}
+		
+	if ((msgid = msgget(key, 0666 | IPC_CREAT)) == -1)
+	{
+   		perror("Error with message ID (msgget)");
 		exit(1);
 	}
 
-	msg.mType = 1;
-
 	srand(time(NULL));
+
+	msg.mType = 1;
 	
 	while (TRUE)
 	{
-		char message[MSGLEN];
 		randNumber = rand() % 100;
-
-		sprintf(message, "%u", randNumber);
-
-		msgsnd(msgid, &msg, sizeof(msg), 0);
 		
-	    usleep(1000);
+		sprintf(msg.mText, "%u", randNumber);
+		
+		msgsnd(msgid, &msg, MSGLEN, 0);
+
+		printf("Message send: %s\n", msg.mText);
+		
+	    sleep(1);
 	}
     
 	exit(0);
