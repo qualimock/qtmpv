@@ -12,6 +12,16 @@ class OverlayLine;
 class OverlayText;
 
 
+#define MSGLEN 32
+
+
+struct Msg
+{
+    long mType;
+    char mText[MSGLEN];
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -33,6 +43,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void update_text_loop();
 
 
 protected:
