@@ -100,7 +100,7 @@ void MainWindow::update_text_loop()
 {
     Msg msg;
     int msgid;
-    int key = ftok("/home/puffy/dev/qtmpv/child/token.txt", 1);
+    int key = ftok(FTOK_PATH, 1);
 
     if (key == -1)
     {

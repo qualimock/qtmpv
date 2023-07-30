@@ -13,6 +13,7 @@ class OverlayText;
 
 
 #define MSGLEN 32
+#define FTOK_PATH "/home/puffy/dev/qtmpv/child/token.txt"
 
 
 struct Msg
