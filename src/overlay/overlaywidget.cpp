@@ -30,11 +30,12 @@ OverlayWidget::OverlayWidget(const OverlayWidget &wgt)
 {}
 
 
-OverlayWidget::OverlayWidget(const QPoint &originOffset, QWidget *parent)
+OverlayWidget::OverlayWidget(const QPoint &offset, QWidget *parent)
     : OverlayWidget(parent)
 {
-    m_originOffset = originOffset;
+    m_originOffset = offset;
 }
+
 
 OverlayWidget::OverlayWidget(int offset_x, int offset_y, QWidget *parent)
     : OverlayWidget(parent)

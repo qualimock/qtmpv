@@ -21,7 +21,7 @@ public:
 
 
     /** Widget constructor with offset from the upper left corner of parent */
-    OverlayWidget(const QPoint& originOffset, QWidget *parent = nullptr);
+    OverlayWidget(const QPoint& offset, QWidget *parent = nullptr);
 
     /** Widget constructor with offset from the upper left corner of parent */
     OverlayWidget(int offset_x, int offset_y, QWidget *parent = nullptr);
