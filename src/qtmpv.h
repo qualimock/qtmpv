@@ -12,6 +12,17 @@ class OverlayLine;
 class OverlayText;
 
 
+#define MSGLEN 32
+#define FTOK_PATH "/home/puffy/dev/qtmpv/child/token.txt"
+
+
+struct Msg
+{
+    long mType;
+    char mText[MSGLEN];
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -31,6 +42,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void update_text_loop();
 
 
 protected:

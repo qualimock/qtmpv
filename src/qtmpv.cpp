@@ -1,6 +1,8 @@
 #include <clocale>
 #include <sstream>
 #include <stdexcept>
+#include <stdlib.h>
+#include <sys/msg.h>
 
 #include <QtGlobal>
 #include <QEvent>
@@ -76,13 +78,42 @@ MainWindow::MainWindow(QWidget *parent)
     overlayLine->setThickness(3);
 
     overlayText = new OverlayText(this);
-    overlayText->setText("Hello, World!!!");
     overlayText->setFont(QFont());
     overlayText->setFontSize(100);
     overlayText->setFontColor(Qt::gray);
 
     overlayWidgets.push_back(overlayLine);
     overlayWidgets.push_back(overlayText);
+}
+
+
+void MainWindow::update_text_loop()
+{
+    Msg msg;
+    int msgid;
+    int key = ftok(FTOK_PATH, 1);
+
+    if (key == -1)
+    {
+        perror("ftok");
+        exit(1);
+    }
+
+    if ((msgid = msgget(key, 0666 | IPC_CREAT)) == -1)
+    {
+        perror("msgget");
+        exit(1);
+    }
+
+    msg.mType = 0;
+
+    while (true)
+    {
+        msgrcv(msgid, &msg, MSGLEN, 1, 0);
+
+        overlayText->setText(msg.mText);
+        overlayText->update();
+    }
 }
 
 

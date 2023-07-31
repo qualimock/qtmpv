@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+
+
+#define TRUE 1
+#define MSGLEN 32
+
+
+typedef struct
+{
+	long mType;
+	char mText[MSGLEN];
+} Msg;   
+
+
+int main()
+{
+	Msg msg;
+	int msgid;
+	int key = ftok("/home/puffy/dev/qtmpv/child/token.txt", 1);
+	unsigned randNumber;
+
+	if (key == -1)
+	{
+	  	perror("ftok");
+	   	exit(1);
+	}
+		
+	if ((msgid = msgget(key, 0666 | IPC_CREAT)) == -1)
+	{
+   		perror("Error with message ID (msgget)");
+		exit(1);
+	}
+
+	srand(time(NULL));
+
+	msg.mType = 1;
+	
+	while (TRUE)
+	{
+		randNumber = rand() % 100;
+		
+		sprintf(msg.mText, "%u", randNumber);
+		
+		msgsnd(msgid, &msg, MSGLEN, 0);
+
+		printf("Message send: %s\n", msg.mText);
+		
+	    sleep(1);
+	}
+    
+	exit(0);
+}
+
