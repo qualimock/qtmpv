@@ -18,6 +18,9 @@ class OverlayLine : public OverlayWidget
 
 public:
     OverlayLine(QWidget *parent = nullptr);
+    OverlayLine(OverlayWidget&& widget);
+
+    OverlayLine(const QColor& color, unsigned thickness, QWidget *parent = nullptr);
 
 
     void setThickness(unsigned thickness) {
