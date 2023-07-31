@@ -7,7 +7,7 @@
 #include <QStatusBar>
 #include <QTextEdit>
 #include <QLabel>
-#include <QTimer>
+#include <QDebug>
 
 
 #if QT_VERSION >= 0x050000
@@ -34,15 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowTitle("Qt mpv");
     setMinimumSize(800, 472);
-
-
-    QMainWindow *log_window = new QMainWindow(this);
-    log = new QTextEdit(log_window);
-    log->setReadOnly(true);
-    log_window->setCentralWidget(log);
-    log_window->setWindowTitle("qtmpv log window");
-    log_window->setMinimumSize(500, 50);
-    log_window->show();
 
 
     mpv = mpv_create();
@@ -142,8 +133,8 @@ void MainWindow::handle_mpv_event(mpv_event *event)
             if (prop->format == MPV_FORMAT_NODE) {
                 QVariant v = mpv::qt::node_to_variant((mpv_node *)prop->data);
                 QJsonDocument d = QJsonDocument::fromVariant(v);
-                append_log("Change property " + QString(prop->name) + ":\n");
-                append_log(d.toJson().data());
+                qInfo() << "Change property " << QString(prop->name) << ":\n";
+                qInfo() << d.toJson().data();
             }
 #endif
         }
@@ -165,7 +156,7 @@ void MainWindow::handle_mpv_event(mpv_event *event)
         struct mpv_event_log_message *msg = (struct mpv_event_log_message *)event->data;
         std::stringstream ss;
         ss << "[" << msg->prefix << "] " << msg->level << ": " << msg->text;
-        append_log(QString::fromStdString(ss.str()));
+        qInfo() << QString::fromStdString(ss.str());
         break;
     }
     case MPV_EVENT_SHUTDOWN: {
@@ -199,15 +190,6 @@ void MainWindow::open_video_file(const QString &filename)
 }
 
 
-void MainWindow::append_log(const QString &text)
-{
-    QTextCursor cursor = log->textCursor();
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText(text);
-    log->setTextCursor(cursor);
-}
-
-
 MainWindow::~MainWindow()
 {
     if (mpv) {
@@ -218,8 +200,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::resizeEvent(QResizeEvent *)
 {
-    overlayLine->setOriginOffset(0, this->height()/2);
-    overlayLine->resize(this->width(), overlayLine->height());
+    overlayLine->setOriginOffset(0, height()/2);
+    overlayLine->resize(width(), overlayLine->height());
 
     overlayText->resize(100, 100);
 }

@@ -18,14 +18,12 @@ class MainWindow : public QMainWindow
 
 
     QWidget *mpv_container;
-    QTextEdit *log;
     mpv_handle *mpv;
 
     QVector<OverlayWidget *> overlayWidgets;
     OverlayLine *overlayLine;
     OverlayText *overlayText;
 
-    void append_log(const QString &text);
     void handle_mpv_event(mpv_event *event);
     void open_video_file(const QString &filename);
 
