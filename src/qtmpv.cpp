@@ -204,7 +204,8 @@ void MainWindow::handle_mpv_event(mpv_event *event)
         mpv = NULL;
         break;
     }
-    default: ;
+    default:
+        break;
     }
 }
 
@@ -222,11 +223,9 @@ void MainWindow::on_mpv_events()
 
 void MainWindow::open_video_file(const QString &filename)
 {
-    if (mpv) {
-        const QByteArray c_filename = filename.toUtf8();
-        const char *args[] = {"loadfile", c_filename.data(), NULL};
-        mpv_command_async(mpv, 0, args);
-    }
+    const QByteArray c_filename = filename.toUtf8();
+    const char *args[] = {"loadfile", c_filename.data(), NULL};
+    mpv_command_async(mpv, 0, args);
 }
 
 
