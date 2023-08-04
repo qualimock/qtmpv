@@ -32,7 +32,7 @@ int main()
 		
 	if ((msgid = msgget(key, 0666 | IPC_CREAT)) == -1)
 	{
-   		perror("Error with message ID (msgget)");
+   		perror("msgget");
 		exit(1);
 	}
 
@@ -50,7 +50,7 @@ int main()
 
 		printf("Message send: %s\n", msg.mText);
 		
-	    sleep(1);
+	    usleep(200000);
 	}
     
 	exit(0);
