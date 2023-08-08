@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (mpv_initialize(mpv) < 0)
         throw std::runtime_error("mpv failed to initialize");
 
-    open_video_file("/dev/video0");
+    open_video_file(path_video_stream.c_str());
 
     overlayLine = new OverlayLine(this);
     overlayLine->setColor(Qt::red);
@@ -123,6 +123,12 @@ void MainWindow::update_text_loop()
         overlayText->setText(msg.mText);
         overlayText->update();
     }
+}
+
+
+void MainWindow::set_path_of_video_stream(const std::string &path)
+{
+    path_video_stream = path;
 }
 
 
