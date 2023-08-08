@@ -7,6 +7,9 @@
 #include "qtmpv.h"
 
 
+#define DEV_PATH "/dev"
+
+
 static std::string ask_about_stream()
 {
     std::vector<std::string> allDirs;
@@ -14,9 +17,9 @@ static std::string ask_about_stream()
 
     long userAnswer;
 
-    if (std::filesystem::is_directory(FTOK_PATH))
+    if (std::filesystem::is_directory(DEV_PATH))
     {
-        for (const auto &entry : std::filesystem::directory_iterator(FTOK_PATH))
+        for (const auto &entry : std::filesystem::directory_iterator(DEV_PATH))
         {
             allDirs.push_back(entry.path().filename().string());
         }
@@ -24,7 +27,7 @@ static std::string ask_about_stream()
 
     for (const auto &file : allDirs)
     {
-        if (file.find("video") == std::string::npos)
+        if (file.find("video") != std::string::npos)
         {
             videoFiles.push_back(file);
         }
@@ -32,14 +35,14 @@ static std::string ask_about_stream()
 
     if (videoFiles.size() == 1)
     {
-        return videoFiles.at(0);
+        return "/dev/" + videoFiles.at(0);
     }
 
     std::cout << "Какой поток для вывода вы хотите использовать?:" << std::endl;
 
     for (unsigned i = 0; i < videoFiles.size(); i++)
     {
-        std::cout << i + 1 << ". " << videoFiles.at(i) << std::endl;
+        std::cout << i + 1 << ". /dev/" << videoFiles.at(i) << std::endl;
     }
 
     std::cout << "Введите только число >> ";
@@ -47,12 +50,11 @@ static std::string ask_about_stream()
 
     try
     {
-        return videoFiles.at(userAnswer - 1);
+        return "/dev/" + videoFiles.at(userAnswer - 1);
     }
     catch (...)
     {
-        perror("Плохой индекс");
-        exit(1);
+        throw std::length_error("Выбран неправильный индекс");
     }
 }
 
@@ -65,9 +67,7 @@ int main(int argc, char *argv[])
 
     std::string stream = ask_about_stream();
 
-    MainWindow w;
-
-    w.set_path_of_video_stream(stream);
+    MainWindow w(stream);
 
     std::thread text_thread(&MainWindow::update_text_loop, &w);
     text_thread.detach();

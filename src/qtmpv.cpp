@@ -10,6 +10,7 @@
 #include <QTextEdit>
 #include <QLabel>
 #include <QDebug>
+#include <iostream>
 
 
 #if QT_VERSION >= 0x050000
@@ -31,7 +32,7 @@ static void wakeup(void *ctx)
 }
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(const std::string &pathVideoStream, QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("Qt mpv");
@@ -71,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (mpv_initialize(mpv) < 0)
         throw std::runtime_error("mpv failed to initialize");
 
-    open_video_file(path_video_stream.c_str());
+    open_video_file(pathVideoStream.c_str());
 
     overlayLine = new OverlayLine(this);
     overlayLine->setColor(Qt::red);
@@ -123,12 +124,6 @@ void MainWindow::update_text_loop()
         overlayText->setText(msg.mText);
         overlayText->update();
     }
-}
-
-
-void MainWindow::set_path_of_video_stream(const std::string &path)
-{
-    path_video_stream = path;
 }
 
 

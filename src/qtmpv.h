@@ -38,14 +38,10 @@ class MainWindow : public QMainWindow
     void handle_mpv_event(mpv_event *event);
     void open_video_file(const QString &filename);
 
-    std::string path_video_stream;
-
-
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(const std::string &pathVideoStream, QWidget *parent = 0);
     ~MainWindow();
     void update_text_loop();
-    void set_path_of_video_stream(const std::string &path);
 
 protected:
     bool event(QEvent *event);
