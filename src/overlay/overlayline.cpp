@@ -19,9 +19,9 @@ OverlayLine::OverlayLine(OverlayWidget&& widget)
 
 OverlayLine::OverlayLine(const QColor& color, unsigned thickness, QWidget *parent)
     : OverlayWidget(parent)
-{
-
-}
+    , m_color(color)
+    , m_thickness(thickness)
+{}
 
 
 void OverlayLine::paintEvent(QPaintEvent *)
