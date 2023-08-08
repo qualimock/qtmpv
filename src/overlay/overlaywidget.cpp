@@ -1,4 +1,4 @@
-#include "overlaywidget.h"
+#include "overlaywidget.hpp"
 
 
 #include <QPoint>

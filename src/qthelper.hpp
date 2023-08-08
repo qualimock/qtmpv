@@ -322,7 +322,7 @@ static inline QVariant get_property(mpv_handle *ctx, const QString &name)
  * @return mpv error code (<0 on error, >= 0 on success)
  */
 static inline int set_property(mpv_handle *ctx, const QString &name,
-                                       const QVariant &v)
+                               const QVariant &v)
 {
     node_builder node(v);
     return mpv_set_property(ctx, name.toUtf8().data(), MPV_FORMAT_NODE, node.node());

@@ -3,11 +3,12 @@
 #include <filesystem>
 #include <vector>
 #include <iostream>
+#include <QProcess>
 
-#include "qtmpv.h"
+#include "qtmpv.hpp"
 
 
-#define DEV_PATH "/dev"
+#define DEV_PATH "/dev/"
 
 
 static std::string ask_about_stream()
@@ -35,14 +36,14 @@ static std::string ask_about_stream()
 
     if (videoFiles.size() == 1)
     {
-        return "/dev/" + videoFiles.at(0);
+        return DEV_PATH + videoFiles.at(0);
     }
 
     std::cout << "Какой поток для вывода вы хотите использовать?:" << std::endl;
 
     for (unsigned i = 0; i < videoFiles.size(); i++)
     {
-        std::cout << i + 1 << ". /dev/" << videoFiles.at(i) << std::endl;
+        std::cout << i + 1 << ". " << DEV_PATH << videoFiles.at(i) << std::endl;
     }
 
     std::cout << "Введите только число >> ";
@@ -50,7 +51,7 @@ static std::string ask_about_stream()
 
     try
     {
-        return "/dev/" + videoFiles.at(userAnswer - 1);
+        return DEV_PATH + videoFiles.at(userAnswer - 1);
     }
     catch (...)
     {
@@ -67,9 +68,13 @@ int main(int argc, char *argv[])
 
     std::string stream = ask_about_stream();
 
-    MainWindow w(stream);
+    QProcess process;
+    QStringList args = {"-video_size", "1920x1080", "-framerate", "30", stream.c_str()};
+    process.start("ffplay", args);
 
-    std::thread text_thread(&MainWindow::update_text_loop, &w);
+    MainWindow w(process.processId());
+
+    std::thread text_thread(&MainWindow::update_window_data_loop, &w);
     text_thread.detach();
 
     w.show();

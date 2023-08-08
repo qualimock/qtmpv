@@ -1,5 +1,7 @@
 QT       += core gui
 
+QMAKE_LFLAGS += -lX11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = qtmpv
@@ -14,7 +16,8 @@ SOURCES += src/qtmpv.cpp \
     src/overlay/overlaytext.cpp \
     src/overlay/overlayline.cpp \
     src/overlay/overlaywidget.cpp
-HEADERS += src/qtmpv.h \
-    src/overlay/overlaytext.h \
-    src/overlay/overlayline.h \
-    src/overlay/overlaywidget.h
+HEADERS += \
+    src/overlay/overlayline.hpp \
+    src/overlay/overlaytext.hpp \
+    src/overlay/overlaywidget.hpp \
+    src/qtmpv.hpp

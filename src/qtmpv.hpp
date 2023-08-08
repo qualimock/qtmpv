@@ -1,9 +1,10 @@
 #ifndef QTEXAMPLE_H
 #define QTEXAMPLE_H
 
-
 #include <QMainWindow>
 #include <mpv/client.h>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
 
 
 class QTextEdit;
@@ -27,33 +28,27 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-
-    QWidget *mpv_container;
-    mpv_handle *mpv;
-
     QVector<OverlayWidget *> overlayWidgets;
     OverlayLine *overlayLine;
     OverlayText *overlayText;
 
-    void handle_mpv_event(mpv_event *event);
-    void open_video_file(const QString &filename);
+    Window *ffplayWindow;
+    Display *display = XOpenDisplay(NULL);
+    XWindowAttributes attrs;
+    pid_t pidFfplay;
+
+    Window* find_windows(Display *display, ulong *winCount);
+    pid_t get_window_pid(Display *display, Window window);
 
 public:
-    explicit MainWindow(const std::string &pathVideoStream, QWidget *parent = 0);
+    explicit MainWindow(const pid_t &pid, QWidget *parent = 0);
     ~MainWindow();
-    void update_text_loop();
+    void update_window_data_loop();
 
 protected:
-    bool event(QEvent *event);
     void resizeEvent(QResizeEvent *event);
+    bool event(QEvent *event);
 
-
-private slots:
-    void on_mpv_events();
-
-
-signals:
-    void mpv_events();
 };
 
 

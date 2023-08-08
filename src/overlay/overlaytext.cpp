@@ -1,4 +1,4 @@
-#include "overlaytext.h"
+#include "overlaytext.hpp"
 
 
 #include <QPainter>

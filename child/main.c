@@ -8,6 +8,7 @@
 
 #define TRUE 1
 #define MSGLEN 32
+#define FTOK_PATH "/etc/qtmpv/token.txt"
 
 
 typedef struct
@@ -21,7 +22,7 @@ int main()
 {
 	Msg msg;
 	int msgid;
-	int key = ftok("/home/puffy/dev/qtmpv/child/token.txt", 1);
+	int key = ftok(FTOK_PATH, 1);
 	unsigned randNumber;
 
 	if (key == -1)

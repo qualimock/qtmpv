@@ -2,7 +2,7 @@
 #define OVERLAYLINE_H
 
 
-#include "overlaywidget.h"
+#include "overlaywidget.hpp"
 
 
 class QPainter;

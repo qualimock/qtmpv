@@ -12,67 +12,25 @@
 #include <QDebug>
 #include <iostream>
 
-
 #if QT_VERSION >= 0x050000
 #include <QJsonDocument>
 #endif
 
+#include "qtmpv.hpp"
 
-#include "qtmpv.h"
-
-#include "qthelper.hpp"
-#include "overlay/overlayline.h"
-#include "overlay/overlaytext.h"
+#include "overlay/overlayline.hpp"
+#include "overlay/overlaytext.hpp"
 
 
-static void wakeup(void *ctx)
-{
-    MainWindow *mainwindow = (MainWindow *)ctx;
-    emit mainwindow->mpv_events();
-}
-
-
-MainWindow::MainWindow(const std::string &pathVideoStream, QWidget *parent)
+MainWindow::MainWindow(const pid_t &pid, QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Qt mpv");
-    setMinimumSize(800, 472);
+    if (display == NULL)
+    {
+        throw std::system_error();
+    }
 
-
-    mpv = mpv_create();
-    if (!mpv)
-        throw std::runtime_error("can't create mpv instance");
-
-    mpv_container = new QWidget(this);
-    setCentralWidget(mpv_container);
-    mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
-    mpv_container->setAttribute(Qt::WA_NativeWindow);
-    auto raw_wid = mpv_container->winId();
-
-
-#ifdef _WIN32
-#else
-    int64_t wid = raw_wid;
-#endif
-
-    mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
-    mpv_set_option_string(mpv, "input-default-bindings", "yes");
-    mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
-    mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
-    mpv_observe_property(mpv, 0, "track-list", MPV_FORMAT_NODE);
-    mpv_observe_property(mpv, 0, "chapter-list", MPV_FORMAT_NODE);
-    mpv_request_log_messages(mpv, "info");
-
-    connect(this, &MainWindow::mpv_events, this,
-            &MainWindow::on_mpv_events, Qt::QueuedConnection);
-
-    mpv_set_wakeup_callback(mpv, wakeup, this);
-
-
-    if (mpv_initialize(mpv) < 0)
-        throw std::runtime_error("mpv failed to initialize");
-
-    open_video_file(pathVideoStream.c_str());
+    pidFfplay = pid;
 
     overlayLine = new OverlayLine(this);
     overlayLine->setColor(Qt::red);
@@ -87,8 +45,65 @@ MainWindow::MainWindow(const std::string &pathVideoStream, QWidget *parent)
 }
 
 
-void MainWindow::update_text_loop()
+Window* MainWindow::find_windows(Display *display, ulong *winCount)
 {
+    Atom actualType;
+    int format;
+    ulong bytesAfter;
+    uchar* list = NULL;
+    Status status = XGetWindowProperty(
+        display,
+        DefaultRootWindow(display),
+        XInternAtom(display, "_NET_CLIENT_LIST", False),
+        0L,
+        ~0L,
+        False,
+        XA_WINDOW,
+        &actualType,
+        &format,
+        winCount,
+        &bytesAfter,
+        &list
+        );
+
+    if (status != Success)
+    {
+        *winCount = 0;
+        return NULL;
+    }
+
+    return reinterpret_cast<Window *>(list);
+}
+
+
+pid_t MainWindow::get_window_pid(Display *display, Window window)
+{
+    Atom atomPID = XInternAtom(display, "_NET_WM_PID", True);
+    Atom type;
+    int format;
+    unsigned long nItems;
+    unsigned long bytesAfter;
+    unsigned char* propPID = nullptr;
+
+    if (XGetWindowProperty(display, window, atomPID, 0, 1, False, XA_CARDINAL, &type, &format, &nItems, &bytesAfter, &propPID) == Success)
+    {
+        if (propPID != nullptr)
+        {
+            unsigned long pid = *((unsigned long*)propPID);
+            XFree(propPID);
+
+            return static_cast<int>(pid);
+        }
+    }
+
+    return -1;
+}
+
+
+void MainWindow::update_window_data_loop()
+{
+    //////////////////////////// MSGGET ////////////////////////////
+
     Msg msg;
     int msgid;
     int key = ftok(FTOK_PATH, 1);
@@ -108,8 +123,47 @@ void MainWindow::update_text_loop()
 
     msg.mType = 0;
 
+    //////////////////////////// X11 ////////////////////////////
+
+    ulong count = 0;
+    Window *wins = find_windows(display, &count);
+
+    for (ulong i = 0; i < count; i++)
+    {
+        Window w = wins[i];
+
+        pid_t windowPID = get_window_pid(display, w);
+
+        if (windowPID == -1)
+        {
+            throw std::system_error();
+        }
+
+        if (windowPID == pidFfplay)
+        {
+            *ffplayWindow = w;
+        }
+    }
+
     while (true)
     {
+        /////////////////////////// X11 ////////////////////////////
+
+        if (XGetWindowAttributes(display, *ffplayWindow, &attrs))
+        {
+            Window child;
+            if (!XTranslateCoordinates(display, *ffplayWindow, attrs.root, 0, 0, &attrs.x, &attrs.y, &child))
+            {
+                throw std::system_error();
+            }
+            else
+            {
+                std::cout << attrs.x << ' ' << attrs.y << std::endl;
+            }
+        }
+
+        //////////////////////////// MSGGET ////////////////////////////
+
         msgrcv(msgid, &msg, MSGLEN, 1, 0);
 
          uMsg = strtoul(msg.mText, nullptr, 10);
@@ -129,9 +183,13 @@ void MainWindow::update_text_loop()
 
 bool MainWindow::event(QEvent *event)
 {
-    switch (event->type()) {
+    static int x = attrs.x, y = attrs.y;
+
+    switch (event->type())
+    {
     case QEvent::Show:
-        for (auto widget : overlayWidgets) {
+        for (auto widget : overlayWidgets)
+        {
             widget->show();
         }
         break;
@@ -139,111 +197,34 @@ bool MainWindow::event(QEvent *event)
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        for (auto widget : overlayWidgets) {
-            widget->widgetResizeMove(mpv_container);
-        }
         break;
-
     default:
         break;
+    }
+
+    if (x != attrs.x || y != attrs.y)
+    {
+        std::cout << "Moved!" << std::endl;
+        x = attrs.x, y = attrs.y;
+        for (auto widget : overlayWidgets)
+        {
+            widget->move(x, y);
+            widget->update();
+        }
     }
 
     return QMainWindow::event(event);
 }
 
 
-void MainWindow::handle_mpv_event(mpv_event *event)
-{
-    switch (event->event_id)
-    {
-    case MPV_EVENT_PROPERTY_CHANGE: {
-        mpv_event_property *prop = (mpv_event_property *)event->data;
-        if (strcmp(prop->name, "time-pos") == 0) {
-            if (prop->format == MPV_FORMAT_DOUBLE) {
-                double time = *(double *)prop->data;
-                std::stringstream ss;
-                ss << "At: " << time;
-                statusBar()->showMessage(QString::fromStdString(ss.str()));
-            } else if (prop->format == MPV_FORMAT_NONE) {
-                statusBar()->showMessage("");
-            }
-        } else if (strcmp(prop->name, "chapter-list") == 0 ||
-                   strcmp(prop->name, "track-list") == 0)
-        {
-#if QT_VERSION >= 0x050000
-            if (prop->format == MPV_FORMAT_NODE) {
-                QVariant v = mpv::qt::node_to_variant((mpv_node *)prop->data);
-                QJsonDocument d = QJsonDocument::fromVariant(v);
-                qInfo() << "Change property " << QString(prop->name) << ":\n";
-                qInfo() << d.toJson().data();
-            }
-#endif
-        }
-        break;
-    }
-    case MPV_EVENT_VIDEO_RECONFIG: {
-        int64_t w, h;
-        if (mpv_get_property(mpv, "dwidth", MPV_FORMAT_INT64, &w) >= 0 &&
-            mpv_get_property(mpv, "dheight", MPV_FORMAT_INT64, &h) >= 0 &&
-            w > 0 && h > 0)
-        {
-            std::stringstream ss;
-            ss << "Reconfig: " << w << " " << h;
-            statusBar()->showMessage(QString::fromStdString(ss.str()));
-        }
-        break;
-    }
-    case MPV_EVENT_LOG_MESSAGE: {
-        struct mpv_event_log_message *msg = (struct mpv_event_log_message *)event->data;
-        std::stringstream ss;
-        ss << "[" << msg->prefix << "] " << msg->level << ": " << msg->text;
-        qInfo() << QString::fromStdString(ss.str());
-        break;
-    }
-    case MPV_EVENT_SHUTDOWN: {
-        mpv_terminate_destroy(mpv);
-        mpv = NULL;
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-
-void MainWindow::on_mpv_events()
-{
-    while (mpv) {
-        mpv_event *event = mpv_wait_event(mpv, 0);
-        if (event->event_id == MPV_EVENT_NONE)
-            break;
-        handle_mpv_event(event);
-    }
-}
-
-
-void MainWindow::open_video_file(const QString &filename)
-{
-    if (mpv) {
-        const QByteArray c_filename = filename.toUtf8();
-        const char *args[] = {"loadfile", c_filename.data(), NULL};
-        mpv_command_async(mpv, 0, args);
-    }
-}
-
-
 MainWindow::~MainWindow()
-{
-    if (mpv) {
-        mpv_terminate_destroy(mpv);
-    }
-}
+{}
 
 
 void MainWindow::resizeEvent(QResizeEvent *)
 {
-    overlayLine->setOriginOffset(0, height()/2);
-    overlayLine->resize(width(), overlayLine->height());
+    overlayLine->setOriginOffset(0, attrs.y/2);
+    overlayLine->resize(attrs.x, attrs.y);
 
     overlayText->resize(100, 100);
 }
