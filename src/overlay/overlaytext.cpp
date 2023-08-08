@@ -8,7 +8,7 @@
 
 OverlayText::OverlayText(QWidget *parent)
     : OverlayWidget(parent)
-    , m_text("placeholder")
+    , m_text("No messages!")
     , m_font(QFont())
     , m_fontColor(Qt::black)
 {}

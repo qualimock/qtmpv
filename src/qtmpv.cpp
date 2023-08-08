@@ -80,7 +80,6 @@ MainWindow::MainWindow(QWidget *parent)
     overlayText = new OverlayText(this);
     overlayText->setFont(QFont());
     overlayText->setFontSize(100);
-    overlayText->setFontColor(Qt::gray);
 
     overlayWidgets.push_back(overlayLine);
     overlayWidgets.push_back(overlayText);
@@ -92,6 +91,7 @@ void MainWindow::update_text_loop()
     Msg msg;
     int msgid;
     int key = ftok(FTOK_PATH, 1);
+    unsigned uMsg;
 
     if (key == -1)
     {
@@ -110,6 +110,15 @@ void MainWindow::update_text_loop()
     while (true)
     {
         msgrcv(msgid, &msg, MSGLEN, 1, 0);
+
+         uMsg = strtoul(msg.mText, nullptr, 10);
+
+        if (uMsg < 10)
+            overlayText->setFontColor(Qt::red);
+        else if (uMsg < 50)
+            overlayText->setFontColor(Qt::yellow);
+        else
+            overlayText->setFontColor(Qt::green);
 
         overlayText->setText(msg.mText);
         overlayText->update();
@@ -195,7 +204,8 @@ void MainWindow::handle_mpv_event(mpv_event *event)
         mpv = NULL;
         break;
     }
-    default: ;
+    default:
+        break;
     }
 }
 
