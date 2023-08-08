@@ -4,3 +4,5 @@
 moc_*
 build
 test
+Makefile
+compile_commands.json
