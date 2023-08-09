@@ -127,18 +127,22 @@ void MainWindow::update_window_data_loop()
     msg.mType = 0;
 
     int x = 0, y = 0;
+    ulong count;
+    Window *wins;
+    Window w;
+    pid_t windowPID;
 
     while (true)
     {
-        if (Display* display = XOpenDisplay( NULL ))
+        if (Display* display = XOpenDisplay(NULL))
         {
-            ulong count = 0;
-            Window* wins = find_windows(display, &count);
+            count = 0;
+            wins = find_windows(display, &count);
             for (ulong i = 0; i < count; i++)
             {
-                Window w = wins[ i ];
+                w = wins[i];
 
-                int windowPID = get_window_pid(display, w);
+                windowPID = get_window_pid(display, w);
 
                 if (windowPID == -1)
                 {
