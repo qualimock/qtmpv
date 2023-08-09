@@ -74,8 +74,11 @@ int main(int argc, char *argv[])
 
     MainWindow w(process.processId());
 
-    std::thread text_thread(&MainWindow::update_window_data_loop, &w);
-    text_thread.detach();
+    std::thread textThread(&MainWindow::msgget_loop, &w);
+    std::thread x11Thread(&MainWindow::x11_loop, &w);
+
+    textThread.detach();
+    x11Thread.detach();
 
     w.show();
 

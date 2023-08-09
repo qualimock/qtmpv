@@ -43,11 +43,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(const pid_t &pid, QWidget *parent = 0);
     ~MainWindow();
-    void update_window_data_loop();
-
-protected:
-    void resizeEvent(QResizeEvent *event);
-    bool event(QEvent *event);
+    void msgget_loop();
+    void x11_loop();
 
 };
 

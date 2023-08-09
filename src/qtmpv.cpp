@@ -23,6 +23,11 @@
 #include "overlay/overlaytext.hpp"
 
 
+#define ERROR -1
+#define FONT_SIZE 100
+#define LINE_THICKNESS 3
+
+
 MainWindow::MainWindow(const pid_t &pid, QWidget *parent)
     : QMainWindow(parent)
 {
@@ -35,14 +40,17 @@ MainWindow::MainWindow(const pid_t &pid, QWidget *parent)
 
     overlayLine = new OverlayLine(this);
     overlayLine->setColor(Qt::red);
-    overlayLine->setThickness(3);
+    overlayLine->setThickness(LINE_THICKNESS);
 
     overlayText = new OverlayText(this);
     overlayText->setFont(QFont());
-    overlayText->setFontSize(100);
+    overlayText->setFontSize(FONT_SIZE);
 
     overlayWidgets.push_back(overlayLine);
     overlayWidgets.push_back(overlayText);
+
+    overlayText->show();
+    overlayLine->show();
 }
 
 
@@ -97,28 +105,24 @@ pid_t MainWindow::get_window_pid(Display *display, Window window)
         }
     }
 
-    return -1;
+    return ERROR;
 }
 
 
-void MainWindow::update_window_data_loop()
+void MainWindow::msgget_loop()
 {
-    //////////////////////////// MSGGET ////////////////////////////
-
-    sleep(6);
-
     Msg msg;
     int msgid;
     int key = ftok(FTOK_PATH, 1);
     unsigned uMsg;
 
-    if (key == -1)
+    if (key == ERROR)
     {
         perror("ftok");
         exit(1);
     }
 
-    if ((msgid = msgget(key, 0666 | IPC_CREAT)) == -1)
+    if ((msgid = msgget(key, 0666 | IPC_CREAT)) == ERROR)
     {
         perror("msgget");
         exit(1);
@@ -126,75 +130,25 @@ void MainWindow::update_window_data_loop()
 
     msg.mType = 0;
 
-    int x = 0, y = 0;
-    ulong count;
-    Window *wins;
-    Window w;
-    pid_t windowPID;
-
     while (true)
     {
-        if (Display* display = XOpenDisplay(NULL))
-        {
-            count = 0;
-            wins = find_windows(display, &count);
-            for (ulong i = 0; i < count; i++)
-            {
-                w = wins[i];
-
-                windowPID = get_window_pid(display, w);
-
-                if (windowPID == -1)
-                {
-                    throw std::system_error();
-                }
-
-                if (windowPID == pidFfplay)
-                {
-                    if (XGetWindowAttributes(display, w, &attrs))
-                    {
-                        Window child;
-                        if (!XTranslateCoordinates(display, w, attrs.root, 0, 0, &attrs.x, &attrs.y, &child))
-                        {
-                            throw std::system_error();
-                        }
-                    }
-
-                    break;
-                }
-            }
-
-            if (wins)
-            {
-                XFree(wins);
-            }
-
-            XCloseDisplay(display);
-        }
-
-        if (x != attrs.x || y != attrs.y)
-        {
-            x = attrs.x, y = attrs.y;
-
-            overlayLine->move(x, y + attrs.height / 2);
-            overlayLine->resize(attrs.width, 3);
-            overlayLine->update();
-
-            overlayText->move(x, y);
-        }
-
-        //////////////////////////// MSGGET ////////////////////////////
-
         msgrcv(msgid, &msg, MSGLEN, 1, 0);
 
-         uMsg = strtoul(msg.mText, nullptr, 10);
+        uMsg = strtoul(msg.mText, nullptr, 10);
 
         if (uMsg < 10)
+        {
+
             overlayText->setFontColor(Qt::red);
+        }
         else if (uMsg < 50)
+        {
             overlayText->setFontColor(Qt::yellow);
+        }
         else
+        {
             overlayText->setFontColor(Qt::green);
+        }
 
         overlayText->setText(msg.mText);
         overlayText->update();
@@ -202,36 +156,81 @@ void MainWindow::update_window_data_loop()
 }
 
 
-bool MainWindow::event(QEvent *event)
+void MainWindow::x11_loop()
 {
-    switch (event->type())
+    int x = 0, y = 0;
+    int hW = 0, wW = 0;
+    ulong count;
+    Window *wins;
+    Window w;
+    pid_t windowPID;
+    Display *display;
+
+    while (true)
     {
-    case QEvent::Show:
-        for (auto widget : overlayWidgets)
+        display = XOpenDisplay(NULL);
+        count = 0;
+        wins = find_windows(display, &count);
+
+        for (ulong i = 0; i < count; i++)
         {
-            widget->show();
+            w = wins[i];
+
+            windowPID = get_window_pid(display, w);
+
+            if (windowPID == ERROR)
+            {
+                throw std::system_error();
+            }
+
+            if (windowPID == pidFfplay)
+            {
+                if (XGetWindowAttributes(display, w, &attrs))
+                {
+                    Window child;
+                    if (!XTranslateCoordinates(display, w, attrs.root, 0, 0, &attrs.x, &attrs.y, &child))
+                    {
+                        throw std::system_error();
+                    }
+                }
+
+                break;
+            }
         }
-        break;
 
-    case QEvent::WindowActivate:
-    case QEvent::Resize:
-    case QEvent::Move:
-    default:
-        break;
+        if (wins)
+        {
+            XFree(wins);
+        }
+
+        XCloseDisplay(display);
+
+        if (x != attrs.x || y != attrs.y || hW != attrs.height || wW != attrs.width)
+        {
+            x = attrs.x, y = attrs.y;
+            hW = attrs.height, wW = attrs.width;
+
+            delete overlayLine;
+            delete overlayText;
+
+            overlayLine = new OverlayLine(this);
+            overlayText = new OverlayText(this);
+
+            overlayLine->setGeometry(x, y + hW / 2, wW, 3);
+            overlayLine->setColor(Qt::red);
+
+            overlayText->move(x, y);
+            overlayText->setFont(QFont());
+            overlayText->setFontSize(FONT_SIZE);
+
+            overlayLine->show();
+            overlayText->show();
+        }
+
+        sleep(1);
     }
-
-    return QMainWindow::event(event);
 }
 
 
 MainWindow::~MainWindow()
 {}
-
-
-void MainWindow::resizeEvent(QResizeEvent *)
-{
-    overlayLine->setOriginOffset(0, attrs.y/2);
-    overlayLine->resize(attrs.x, attrs.y);
-
-    overlayText->resize(100, 100);
-}
