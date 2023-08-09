@@ -39,7 +39,7 @@ static std::string ask_about_stream()
         return DEV_PATH + videoFiles.at(0);
     }
 
-    std::cout << "Какой поток для вывода вы хотите использовать?:" << std::endl;
+    std::cout << "Какой поток для вывода вы хотите использовать? (Обычно это /dev/video0):" << std::endl;
 
     for (unsigned i = 0; i < videoFiles.size(); i++)
     {
