@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QDebug>
 #include <iostream>
+#include <unistd.h>
 
 #if QT_VERSION >= 0x050000
 #include <QJsonDocument>
@@ -104,6 +105,8 @@ void MainWindow::update_window_data_loop()
 {
     //////////////////////////// MSGGET ////////////////////////////
 
+    sleep(6);
+
     Msg msg;
     int msgid;
     int key = ftok(FTOK_PATH, 1);
@@ -123,43 +126,57 @@ void MainWindow::update_window_data_loop()
 
     msg.mType = 0;
 
-    //////////////////////////// X11 ////////////////////////////
-
-    ulong count = 0;
-    Window *wins = find_windows(display, &count);
-
-    for (ulong i = 0; i < count; i++)
-    {
-        Window w = wins[i];
-
-        pid_t windowPID = get_window_pid(display, w);
-
-        if (windowPID == -1)
-        {
-            throw std::system_error();
-        }
-
-        if (windowPID == pidFfplay)
-        {
-            *ffplayWindow = w;
-        }
-    }
+    int x = 0, y = 0;
 
     while (true)
     {
-        /////////////////////////// X11 ////////////////////////////
-
-        if (XGetWindowAttributes(display, *ffplayWindow, &attrs))
+        if (Display* display = XOpenDisplay( NULL ))
         {
-            Window child;
-            if (!XTranslateCoordinates(display, *ffplayWindow, attrs.root, 0, 0, &attrs.x, &attrs.y, &child))
+            ulong count = 0;
+            Window* wins = find_windows(display, &count);
+            for (ulong i = 0; i < count; i++)
             {
-                throw std::system_error();
+                Window w = wins[ i ];
+
+                int windowPID = get_window_pid(display, w);
+
+                if (windowPID == -1)
+                {
+                    throw std::system_error();
+                }
+
+                if (windowPID == pidFfplay)
+                {
+                    if (XGetWindowAttributes(display, w, &attrs))
+                    {
+                        Window child;
+                        if (!XTranslateCoordinates(display, w, attrs.root, 0, 0, &attrs.x, &attrs.y, &child))
+                        {
+                            throw std::system_error();
+                        }
+                    }
+
+                    break;
+                }
             }
-            else
+
+            if (wins)
             {
-                std::cout << attrs.x << ' ' << attrs.y << std::endl;
+                XFree(wins);
             }
+
+            XCloseDisplay(display);
+        }
+
+        if (x != attrs.x || y != attrs.y)
+        {
+            x = attrs.x, y = attrs.y;
+
+            overlayLine->move(x, y + attrs.height / 2);
+            overlayLine->resize(attrs.width, 3);
+            overlayLine->update();
+
+            overlayText->move(x, y);
         }
 
         //////////////////////////// MSGGET ////////////////////////////
@@ -183,8 +200,6 @@ void MainWindow::update_window_data_loop()
 
 bool MainWindow::event(QEvent *event)
 {
-    static int x = attrs.x, y = attrs.y;
-
     switch (event->type())
     {
     case QEvent::Show:
@@ -197,20 +212,8 @@ bool MainWindow::event(QEvent *event)
     case QEvent::WindowActivate:
     case QEvent::Resize:
     case QEvent::Move:
-        break;
     default:
         break;
-    }
-
-    if (x != attrs.x || y != attrs.y)
-    {
-        std::cout << "Moved!" << std::endl;
-        x = attrs.x, y = attrs.y;
-        for (auto widget : overlayWidgets)
-        {
-            widget->move(x, y);
-            widget->update();
-        }
     }
 
     return QMainWindow::event(event);
