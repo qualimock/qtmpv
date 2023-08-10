@@ -1,5 +1,5 @@
-#ifndef OVERLAYTEXT_H
-#define OVERLAYTEXT_H
+#ifndef OVERLAYTEXT_HPP
+#define OVERLAYTEXT_HPP
 
 
 #include "overlaywidget.hpp"
@@ -61,4 +61,4 @@ protected:
     void paintEvent(QPaintEvent *);
 };
 
-#endif // OVERLAYTEXT_H
+#endif // OVERLAYTEXT_HPP

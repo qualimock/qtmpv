@@ -1,5 +1,5 @@
-#ifndef QTEXAMPLE_H
-#define QTEXAMPLE_H
+#ifndef QTEXAMPLE_HPP
+#define QTEXAMPLE_HPP
 
 #include <QMainWindow>
 #include <mpv/client.h>
@@ -24,10 +24,11 @@ struct Msg
 };
 
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
 
+
+
+class MainWindow
+{
     QVector<OverlayWidget *> overlayWidgets;
     OverlayLine *overlayLine;
     OverlayText *overlayText;
@@ -41,7 +42,7 @@ class MainWindow : public QMainWindow
     pid_t get_window_pid(Display *display, Window window);
 
 public:
-    explicit MainWindow(const pid_t &pid, QWidget *parent = 0);
+    explicit MainWindow(const pid_t &pid);
     ~MainWindow();
     void msgget_loop();
     void x11_loop();
@@ -49,4 +50,4 @@ public:
 };
 
 
-#endif // QTEXAMPLE_H
+#endif // QTEXAMPLE_HPP

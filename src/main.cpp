@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     std::string stream = ask_about_stream();
 
     QProcess process;
-    QStringList args = {"-video_size", "1920x1080", "-framerate", "30", stream.c_str()};
+    QStringList args = {"-video_size", "1920x1080", "-framerate", "24", stream.c_str()};
     process.start("ffplay", args);
 
     MainWindow w(process.processId());

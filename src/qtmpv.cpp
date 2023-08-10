@@ -28,8 +28,7 @@
 #define LINE_THICKNESS 3
 
 
-MainWindow::MainWindow(const pid_t &pid, QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(const pid_t &pid)
 {
     if (display == NULL)
     {
@@ -213,8 +212,8 @@ void MainWindow::x11_loop()
             delete overlayLine;
             delete overlayText;
 
-            overlayLine = new OverlayLine(this);
-            overlayText = new OverlayText(this);
+            overlayLine = new OverlayLine();
+            overlayText = new OverlayText();
 
             overlayLine->setGeometry(x, y + hW / 2, wW, 3);
             overlayLine->setColor(Qt::red);

@@ -1,5 +1,5 @@
-#ifndef OVERLAYLINE_H
-#define OVERLAYLINE_H
+#ifndef OVERLAYLINE_HPP
+#define OVERLAYLINE_HPP
 
 
 #include "overlaywidget.hpp"
@@ -38,4 +38,4 @@ protected:
 };
 
 
-#endif // OVERLAYLINE_H
+#endif // OVERLAYLINE_HPP

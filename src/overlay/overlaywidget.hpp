@@ -1,5 +1,5 @@
-#ifndef OVERLAYWIDGET_H
-#define OVERLAYWIDGET_H
+#ifndef OVERLAYWIDGET_HPP
+#define OVERLAYWIDGET_HPP
 
 
 #include <QWidget>
@@ -47,4 +47,4 @@ public slots:
 };
 
 
-#endif // OVERLAYWIDGET_H
+#endif // OVERLAYWIDGET_HPP
