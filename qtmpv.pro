@@ -14,10 +14,8 @@ PKGCONFIG += mpv
 SOURCES += src/qtmpv.cpp \
     src/main.cpp \
     src/overlay/overlaytext.cpp \
-    src/overlay/overlayline.cpp \
-    src/overlay/overlaywidget.cpp
+    src/overlay/overlayline.cpp
 HEADERS += \
     src/overlay/overlayline.hpp \
     src/overlay/overlaytext.hpp \
-    src/overlay/overlaywidget.hpp \
     src/qtmpv.hpp
