@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <QProcess>
+#include <unistd.h>
 
 #include "qtmpv.hpp"
 
@@ -72,15 +73,13 @@ int main(int argc, char *argv[])
     QStringList args = {"-video_size", "1920x1080", "-framerate", "24", stream.c_str()};
     process.start("ffplay", args);
 
-    MainWindow w(process.processId());
+    MainWindow w(process.processId(), &process);
 
     std::thread textThread(&MainWindow::msgget_loop, &w);
     std::thread x11Thread(&MainWindow::x11_loop, &w);
 
     textThread.detach();
     x11Thread.detach();
-
-    w.show();
 
     return a.exec();
 }

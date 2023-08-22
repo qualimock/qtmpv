@@ -5,7 +5,7 @@
 #include <mpv/client.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-
+#include <QProcess>
 
 class QTextEdit;
 class OverlayWidget;
@@ -24,11 +24,10 @@ struct Msg
 };
 
 
-
-
-
 class MainWindow
 {
+    QProcess *process;
+
     QVector<OverlayWidget *> overlayWidgets;
     OverlayLine *overlayLine;
     OverlayText *overlayText;
@@ -42,7 +41,7 @@ class MainWindow
     pid_t get_window_pid(Display *display, Window window);
 
 public:
-    explicit MainWindow(const pid_t &pid);
+    explicit MainWindow(const pid_t &pid, QProcess *process);
     ~MainWindow();
     void msgget_loop();
     void x11_loop();

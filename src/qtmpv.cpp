@@ -28,8 +28,10 @@
 #define LINE_THICKNESS 3
 
 
-MainWindow::MainWindow(const pid_t &pid)
+MainWindow::MainWindow(const pid_t &pid, QProcess *process)
 {
+    this->process = process;
+
     if (display == NULL)
     {
         throw std::system_error();
@@ -37,11 +39,11 @@ MainWindow::MainWindow(const pid_t &pid)
 
     pidFfplay = pid;
 
-    overlayLine = new OverlayLine(this);
+    overlayLine = new OverlayLine;
     overlayLine->setColor(Qt::red);
     overlayLine->setThickness(LINE_THICKNESS);
 
-    overlayText = new OverlayText(this);
+    overlayText = new OverlayText;
     overlayText->setFont(QFont());
     overlayText->setFontSize(FONT_SIZE);
 
@@ -137,7 +139,6 @@ void MainWindow::msgget_loop()
 
         if (uMsg < 10)
         {
-
             overlayText->setFontColor(Qt::red);
         }
         else if (uMsg < 50)
@@ -209,11 +210,14 @@ void MainWindow::x11_loop()
             x = attrs.x, y = attrs.y;
             hW = attrs.height, wW = attrs.width;
 
-            delete overlayLine;
-            delete overlayText;
+            overlayLine->hide();
+            overlayText->hide();
 
-            overlayLine = new OverlayLine();
-            overlayText = new OverlayText();
+            overlayLine->deleteLater();
+            overlayText->deleteLater();
+
+            overlayLine = new OverlayLine;
+            overlayText = new OverlayText;
 
             overlayLine->setGeometry(x, y + hW / 2, wW, 3);
             overlayLine->setColor(Qt::red);
@@ -224,6 +228,13 @@ void MainWindow::x11_loop()
 
             overlayLine->show();
             overlayText->show();
+        }
+
+        if (process->state() == QProcess::NotRunning)
+        {
+            std::cout << "Процесс был завершен" << std::endl;
+
+            exit(0);
         }
 
         sleep(1);
